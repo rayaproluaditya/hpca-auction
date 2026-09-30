@@ -1,6 +1,13 @@
 const express=require('express'),http=require('http'),{Server}=require('socket.io'),{Pool}=require('pg'),jwt=require('jsonwebtoken'),crypto=require('crypto'),fs=require('fs'),path=require('path');
 const {scoreOf,categorize}=require('./pricing'),{fetchPlayers}=require('./stats'),announce=require('./voice');
-const pool=new Pool({connectionString:process.env.DATABASE_URL}),SECRET=process.env.JWT_SECRET||'dev-secret';
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false
+  }
+});
+
+const SECRET = process.env.JWT_SECRET || 'dev-secret';
 const hash=p=>crypto.scryptSync(p,'hpca',32).toString('hex');
 // Player state machine: the only legal transitions.
 const T={UPCOMING:['BIDDING','UNSOLD'],BIDDING:['PENDING_CONFIRMATION','UNSOLD','UPCOMING'],PENDING_CONFIRMATION:['SOLD','BIDDING','UNSOLD'],SOLD:['REOPENED'],REOPENED:['BIDDING']};
@@ -149,4 +156,15 @@ async function init(){await pool.query(fs.readFileSync(path.join(__dirname,'sche
  const ps=await fetchPlayers();
  for(let i=0;i<ps.length;i++){const p=ps[i],score=scoreOf(p,S.weights),r=categorize(score,rules);
   await pool.query('insert into auction_players(auction_id,player_ref,name,role,stats,score,category,base_price,increment,pos) values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)',[aid,p.ref,p.name,p.role,{matches:p.matches,runs:p.runs,avg:p.avg,sr:p.sr,wickets:p.wickets,econ:p.econ},score,r.category,r.base_price,r.increment,i])}}
-init().then(()=>srv.listen(4000,()=>console.log('HPCA Auction on :4000'))).catch(e=>{console.error(e);process.exit(1)});
+const PORT = process.env.PORT || 4000;
+
+init()
+  .then(() => {
+    srv.listen(PORT, '0.0.0.0', () => {
+      console.log(`HPCA Auction on :${PORT}`);
+    });
+  })
+  .catch(e => {
+    console.error(e);
+    process.exit(1);
+  });
