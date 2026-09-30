@@ -1,0 +1,19 @@
+name: hpca-auction
+services:
+  db:
+    image: postgres:16-alpine
+    environment: { POSTGRES_USER: auction, POSTGRES_PASSWORD: "${DB_PASSWORD:-auction_dev}", POSTGRES_DB: auction }
+    ports: ["${DB_PORT:-5433}:5432"]
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck: { test: ["CMD-SHELL","pg_isready -U auction"], interval: 5s, retries: 10 }
+  api:
+    build: ./api
+    command: node --watch src/index.js
+    environment:
+      DATABASE_URL: postgres://auction:${DB_PASSWORD:-auction_dev}@db:5432/auction
+      JWT_SECRET: ${JWT_SECRET:-change-me}
+      HPCA_STATS_URL: ${HPCA_STATS_URL:-}
+    ports: ["${APP_PORT:-4100}:4000"]
+    volumes: ["./api:/app", "api_modules:/app/node_modules"]
+    depends_on: { db: { condition: service_healthy } }
+volumes: { pgdata: {}, api_modules: {} }

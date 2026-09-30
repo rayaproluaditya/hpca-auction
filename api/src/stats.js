@@ -1,0 +1,4 @@
+// Player Service adapter. HPCA Stats stays the source of truth; set HPCA_STATS_URL to use it.
+const M=[['Rahul Sharma','Batter',30,820,45,138,2,0],['Imran Khan','All-rounder',28,540,32,128,22,7.1],['Arjun Reddy','Bowler',26,90,10,95,34,6.4],['Vikram Rao','Batter',24,690,38,142,0,0],['Sameer Ali','Bowler',22,60,9,88,27,6.9],['Karthik Goud','All-rounder',25,410,27,120,18,7.4],['Naveen Kumar','Batter',20,350,24,118,1,0],['Faisal Mirza','Bowler',21,40,8,80,19,7.6],['Rohit Verma','Batter',18,280,22,110,0,0],['Sai Teja','All-rounder',19,230,20,112,11,8.0],['Mohan Das','Bowler',16,25,6,75,12,8.2],['Anil Pillai','Batter',15,190,17,105,0,0]];
+const mock=()=>M.map(([name,role,matches,runs,avg,sr,wickets,econ],i)=>({ref:'p'+i,name,role,matches,runs,avg,sr,wickets,econ}));
+exports.fetchPlayers=async()=>{const u=process.env.HPCA_STATS_URL;if(!u)return mock();const r=await fetch(u);if(!r.ok)throw new Error('Stats service error');return r.json()};

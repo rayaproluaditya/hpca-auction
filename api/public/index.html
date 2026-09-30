@@ -1,0 +1,107 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>HPCA Auction</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;700&family=Barlow:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#0d1716;--panel:#15251f;--line:#26433b;--chalk:#eee9dc;--dim:#93a79d;--brass:#c8a24a;--brick:#c4553b;--sage:#6fbf8f}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 50% -10%,#1b3a30,var(--ink) 60%);color:var(--chalk);font:16px/1.4 Barlow,system-ui,sans-serif;min-height:100vh}
+h1,h2,h3,h4,.bid,.tm,.num{font-family:'Barlow Condensed',sans-serif;font-weight:700;margin:0}h4{margin:16px 0 6px;font-size:18px}
+button{font:inherit;font-weight:600;background:var(--brass);color:#1a1405;border:0;border-radius:6px;padding:9px 14px;cursor:pointer}button:disabled{opacity:.35;cursor:not-allowed}button.ghost{background:transparent;color:var(--chalk);border:1px solid var(--line)}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--sage);outline-offset:2px}
+input,select{font:inherit;background:var(--ink);color:var(--chalk);border:1px solid var(--line);border-radius:6px;padding:9px;width:100%}label{display:grid;gap:3px;color:var(--dim);font-size:14px}
+.hide{display:none!important}.dim{color:var(--dim);font-size:14px}.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+#login{max-width:340px;margin:10vh auto;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:24px;display:grid;gap:12px}
+.shell{display:grid;grid-template-columns:250px 1fr;min-height:100vh}@media(max-width:800px){.shell{grid-template-columns:1fr}}
+nav{background:rgba(10,20,18,.7);border-right:1px solid var(--line);padding:16px;display:flex;flex-direction:column;gap:10px}nav h1{font-size:24px}
+#alist{display:grid;gap:6px}.ai{display:grid;text-align:left;background:transparent;color:var(--chalk);border:1px solid var(--line);padding:9px 11px}.ai.on{border-color:var(--brass)}.ai span{color:var(--dim);font-weight:400;font-size:13px}
+.prof{margin-top:auto;display:grid;gap:6px}main{padding:16px;max-width:1040px;width:100%}
+.pill{padding:3px 12px;border-radius:99px;border:1px solid var(--line);color:var(--dim)}.pill.LIVE{color:var(--sage);border-color:var(--sage)}.pill.PAUSED{color:var(--brass);border-color:var(--brass)}
+.grid{display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-top:14px}@media(max-width:1000px){.grid{grid-template-columns:1fr}}
+.card{background:rgba(21,37,31,.85);backdrop-filter:blur(6px);border:1px solid var(--line);border-radius:10px;padding:18px}
+#tv{text-align:center;padding:22px 16px;border-color:#3a5f54}#tv h2{font-size:clamp(40px,9vw,72px);line-height:1}
+.vs{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:18px}.tc{flex:1;min-width:130px;border:1px solid var(--line);border-radius:8px;padding:8px 10px;display:grid}.tc b{font:700 22px 'Barlow Condensed'}.tc span{color:var(--dim);font-size:14px}.tc.hi{border-color:var(--brass);background:rgba(200,162,74,.12)}
+.meta{display:flex;gap:16px;justify-content:center;color:var(--dim);margin-bottom:8px}
+.stats{display:flex;gap:18px;justify-content:center;flex-wrap:wrap;margin:14px 0}.stats div{display:grid}.stats b{font:700 24px 'Barlow Condensed'}.stats span{color:var(--dim);font-size:13px}
+.bid{font-size:clamp(72px,18vw,130px);line-height:1;color:var(--brass)}.holder{font-size:20px}.bar{height:6px;background:var(--line);border-radius:9px;margin:14px 0 6px;overflow:hidden}.bar i{display:block;height:100%;transition:width .1s linear}.tm{font-size:28px}
+#act{margin-top:12px;text-align:center}#act button{font-size:22px;padding:14px 32px}
+.feed{list-style:none;margin:0;padding:0;display:grid;gap:6px}.feed li{display:flex;justify-content:space-between;border-bottom:1px solid var(--line);padding-bottom:6px}.feed li:first-child b{color:var(--brass)}
+.teams{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:14px}.teams h3{font-size:18px}.pb{height:5px;background:var(--line);border-radius:9px;margin:6px 0}.pb i{display:block;height:100%;background:var(--brass);border-radius:9px}.mine{border-color:var(--brass)}
+.f{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;align-items:end;margin-bottom:8px}.card.box{margin-top:14px}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin:14px 0 10px}.chips button{padding:6px 12px}.chips .on{background:var(--brass);color:#1a1405}.chips button:not(.on){background:transparent;color:var(--chalk);border:1px solid var(--line)}
+.lobby{columns:220px;column-gap:12px}.lobby .card{break-inside:avoid;margin-bottom:12px;padding:14px}.lobby .card:nth-child(3n+1){padding-bottom:30px}.lobby .card:nth-child(4n+2){padding-top:26px}
+.badge{font:700 14px 'Barlow Condensed';padding:2px 8px;border-radius:4px;background:var(--line)}.SOLD{color:var(--sage)}.UNSOLD{color:var(--brick)}
+#toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--brick);padding:10px 18px;border-radius:8px;display:none}
+</style></head><body>
+<form id="login"><h1>HPCA Auction</h1><input id="u" placeholder="Username" autocomplete="username">
+<div id="rf" class="hide" style="display:grid;gap:12px"><input id="dn" placeholder="Display name"><select id="br"><option>Batter</option><option>Bowler</option><option>All-rounder</option><option>Wicketkeeper</option></select></div>
+<input id="p" type="password" placeholder="Password" autocomplete="current-password"><button id="lb">Sign in</button><button type="button" class="ghost" id="tg">Create a profile</button>
+<small class="dim">Demo accounts (password pass): admin, cap1 to cap4, viewer</small></form>
+<div id="app" class="shell hide"><nav><h1>HPCA Auction</h1><div id="alist"></div><button id="newa" class="hide">New auction</button>
+<div class="prof"><span id="who" class="dim"></span><button class="ghost" id="vb">Voice off</button><button class="ghost" id="so">Sign out</button></div></nav>
+<main><div id="empty" class="card">No auction yet. An admin can create one from the sidebar.</div>
+<div id="main" class="hide"><div class="row" style="justify-content:space-between"><div class="row"><h1 id="title"></h1><span id="st" class="pill"></span></div></div>
+<div class="grid"><section class="card" id="tv"></section><aside class="card"><h3>Bid feed</h3><ul class="feed" id="feed"></ul><h3 style="margin-top:16px">Audit log</h3><ul class="feed dim" id="ev"></ul></aside></div>
+<div id="act"></div><div class="teams" id="teams"></div>
+<section class="card box hide" id="setup"></section>
+<section class="card box hide" id="admin"><h3>Control room</h3><input id="reason" placeholder="Reason (saved in the audit log)" style="margin:8px 0"><div class="row" id="ab"></div></section>
+<div class="chips" id="chips"></div><div class="lobby" id="lobby"></div></div></main></div>
+<div id="toast"></div>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+const $=id=>document.getElementById(id),esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let S,tok=localStorage.tok,me=JSON.parse(localStorage.me||'null'),aid=+localStorage.aid||0,off=0,voice=false,flt='All',sock,reg=false,users=[],list=[],skey='';
+const admin=()=>me&&me.role==='ADMIN',toast=m=>{const t=$('toast');t.textContent=m;t.style.display='block';setTimeout(()=>t.style.display='none',2800)};
+async function api(p,b,m){const r=await fetch('/api/'+p,{method:b?'POST':'GET',headers:{'Content-Type':'application/json',Authorization:'Bearer '+tok},body:b?JSON.stringify(b):undefined});const j=await r.json().catch(()=>({}));if(r.status===401&&p!=='login'&&p!=='register')return out();if(!r.ok)throw new Error(j.error||'Request failed');return j}
+const out=()=>{localStorage.clear();location.reload()};
+$('tg').onclick=()=>{reg=!reg;$('rf').classList.toggle('hide',!reg);$('rf').style.display=reg?'grid':'none';$('lb').textContent=reg?'Create profile':'Sign in';$('tg').textContent=reg?'I already have a profile':'Create a profile'};
+$('login').onsubmit=async e=>{e.preventDefault();try{const j=await api(reg?'register':'login',{username:$('u').value,password:$('p').value,display_name:$('dn').value,bat_role:$('br').value});localStorage.tok=j.token;localStorage.me=JSON.stringify(j.user);location.reload()}catch(x){toast(x.message)}};
+$('so').onclick=out;$('vb').onclick=()=>{voice=!voice;$('vb').textContent='Voice '+(voice?'on':'off')};
+async function loadList(){list=await api('auctions');if(admin())users=await api('users');if(!list.some(a=>a.id===aid))aid=list[0]?list[0].id:0;
+ $('alist').innerHTML=list.map(a=>`<button class="ai ${a.id===aid?'on':''}" data-id="${a.id}"><b>${esc(a.name)}</b><span>${a.status.toLowerCase()}, ${a.teams} teams, ${a.players} players</span></button>`).join('');
+ if(aid&&(!S||S.auction.id!==aid))pick(aid);if(!aid){S=null;render()}}
+function pick(id){aid=id;localStorage.aid=id;S=null;skey='';sock.emit('join',id);$('alist').querySelectorAll('.ai').forEach(b=>b.classList.toggle('on',+b.dataset.id===id))}
+$('alist').onclick=e=>{const b=e.target.closest('.ai');if(b)pick(+b.dataset.id)};
+$('newa').onclick=async()=>{const name=prompt('Auction name','HPCA Premier League Auction');if(!name)return;try{const j=await api('setup/auction',{name});await loadList();pick(j.id)}catch(x){toast(x.message)}};
+function start(){$('login').classList.add('hide');$('app').classList.remove('hide');$('who').textContent=me.name+' ('+me.role.toLowerCase()+')';
+ if(admin()){$('newa').classList.remove('hide');$('ab').innerHTML=[['start','Start auction'],['next','Next player'],['pause','Pause'],['resume','Resume'],['confirm','Confirm sale'],['reopen','Reopen'],['unsold','Mark unsold'],['skip','Skip'],['undo','Undo bid'],['end','End auction']].map(([a,l])=>`<button data-a="${a}">${l}</button>`).join('');
+  $('ab').onclick=async e=>{const a=e.target.dataset.a;if(!a)return;if(a==='end'&&!confirm('End the auction?'))return;try{await api('admin/'+a,{aid,reason:$('reason').value||null});$('reason').value=''}catch(x){toast(x.message)}};
+  $('setup').onclick=setupClick;$('setup').onchange=e=>{if(e.target.id==='pu'){const u=users.find(x=>x.id==e.target.value);if(u){$('pn').value=u.name;$('pr').value=u.bat_role||'Batter'}}}}
+ sock=io({auth:{token:tok}});sock.on('connect',()=>{if(aid)sock.emit('join',aid)});sock.on('state',s=>{if(s.auction.id!==aid)return;S=s;off=s.server_ts-Date.now();render()});
+ sock.on('list',loadList);sock.on('connect_error',out);sock.on('announce',a=>{if(voice)speechSynthesis.speak(new SpeechSynthesisUtterance(a.text))});loadList()}
+const st=s=>[['Matches',s.matches],['Runs',s.runs],['Average',s.avg],['Strike rate',s.sr],['Wickets',s.wickets],['Economy',s.econ]].map(([l,v])=>`<div><b>${v}</b><span>${l}</span></div>`).join('');
+const ROLES=['Batter','Bowler','All-rounder','Wicketkeeper'];
+function setupHTML(){const a=S.auction,s=a.settings,opt=sel=>'<option value="">No captain</option>'+users.map(u=>`<option value="${u.id}" ${u.id==sel?'selected':''}>${esc(u.name)} (${esc(u.username)})</option>`).join('');
+ return `<h3>Auction setup</h3><p class="dim">Create teams, give captaincy to registered profiles, and build the player pool. Setup locks when the auction starts.</p>
+ <div class="f"><label>Auction name<input id="sn" value="${esc(a.name)}"></label><label>Purse per team<input id="sp" type="number" value="${s.purse}"></label><label>Bid timer (seconds)<input id="stm" type="number" value="${s.timer}"></label><label>Reset after bid (seconds)<input id="sr" type="number" value="${s.reset}"></label><label>Max squad size<input id="sq" type="number" value="${s.squad_max}"></label><button data-k="auction">Save settings</button></div>
+ <h4>Teams and captains</h4>${S.teams.map(t=>`<div class="f" data-id="${t.id}"><input class="tn" value="${esc(t.name)}"><select class="tcp">${opt(t.captain_id)}</select><button data-k="team">Save team</button><button class="ghost" data-k="team-del">Remove</button></div>`).join('')}
+ <div class="f" data-id=""><input class="tn" placeholder="New team name"><select class="tcp">${opt()}</select><button data-k="team">Add team</button></div>
+ <h4>Player pool</h4>${S.players.map(p=>`<div class="row" style="justify-content:space-between;margin-bottom:6px"><span>${esc(p.name)} <span class="dim">${esc(p.role)}, category ${p.category}, base ${p.base_price}</span></span><span class="row"><button class="ghost" data-k="player-edit" data-id="${p.id}">Edit</button><button class="ghost" data-k="player-del" data-id="${p.id}">Remove</button></span></div>`).join('')||'<p class="dim">No players yet.</p>'}
+ <div class="f" style="margin-top:10px"><input type="hidden" id="pid"><label>From a profile<select id="pu"><option value="">Choose</option>${users.map(u=>`<option value="${u.id}">${esc(u.name)}</option>`).join('')}</select></label><label>Name<input id="pn"></label><label>Role<select id="pr">${ROLES.map(r=>`<option>${r}</option>`).join('')}</select></label>
+ ${[['pm','Matches'],['pru','Runs'],['pa','Average'],['ps','Strike rate'],['pw','Wickets'],['pe','Economy']].map(([i,l])=>`<label>${l}<input id="${i}" type="number" step="any"></label>`).join('')}<button data-k="player">Save player</button></div>
+ <p class="dim">Category and base price are set from the stats by the pricing rules.</p>`}
+async function setupClick(e){const b=e.target.closest('button[data-k]');if(!b)return;const k=b.dataset.k,row=b.closest('.f'),v=i=>$(i).value;
+ try{if(k==='player-edit'){const p=S.players.find(x=>x.id==b.dataset.id);$('pid').value=p.id;$('pn').value=p.name;$('pr').value=p.role;[['pm','matches'],['pru','runs'],['pa','avg'],['ps','sr'],['pw','wickets'],['pe','econ']].forEach(([i,f])=>$(i).value=p.stats[f]);$('pn').focus();return}
+  let body={aid};
+  if(k==='auction')body={aid,name:v('sn'),purse:v('sp'),timer:v('stm'),reset:v('sr'),squad_max:v('sq')};
+  else if(k==='team')body={aid,id:row.dataset.id||null,name:row.querySelector('.tn').value,captain_id:row.querySelector('.tcp').value||null};
+  else if(k==='team-del'||k==='player-del'){if(!confirm('Remove it?'))return;body={aid,id:b.dataset.id||row.dataset.id}}
+  else if(k==='player')body={aid,id:v('pid')||null,name:v('pn'),role:v('pr'),user_id:v('pu')||null,stats:{matches:v('pm'),runs:v('pru'),avg:v('pa'),sr:v('ps'),wickets:v('pw'),econ:v('pe')}};
+  await api('setup/'+k,body);toast('Saved')}catch(x){toast(x.message)}}
+function render(){$('empty').classList.toggle('hide',!!S);$('main').classList.toggle('hide',!S);if(!S)return;
+ const a=S.auction,T={};S.teams.forEach(t=>T[t.id]=t);const c=S.players.find(p=>p.status==='BIDDING'||p.status==='PENDING_CONFIRMATION'),mt=S.teams.find(t=>t.captain_id===me.id),setupOn=admin()&&['DRAFT','SCHEDULED'].includes(a.status);
+ $('title').textContent=a.name;$('st').textContent=a.status.toLowerCase();$('st').className='pill '+a.status;
+ const vs=`<div class="vs">${S.teams.map(t=>`<div class="tc ${c&&t.id===c.team_id?'hi':''}"><b>${esc(t.name)}</b><span>Captain: ${esc(t.captain||'not assigned')}</span><span>${t.purse} coins left</span></div>`).join('')||'<span class="dim">No teams yet</span>'}</div>`;
+ $('tv').innerHTML=vs+(c?`<div class="meta"><span>${esc(c.role)}</span><span>Category ${c.category}</span><span>Base ${c.base_price}</span></div><h2>${esc(c.name)}</h2><div class="stats">${st(c.stats)}</div><div class="dim">${c.status==='PENDING_CONFIRMATION'?'Waiting for the admin to decide':'Current bid'}</div><div class="bid">${c.current_bid==null?'-':c.current_bid}</div><div class="holder">${c.team_id?esc(T[c.team_id].name):'No bids yet'}</div><div class="bar"><i id="bar"></i></div><div class="tm" id="tm"></div>`:`<h2>${a.status==='COMPLETED'?'Auction complete':a.status==='LIVE'?'Waiting for the next player':'Auction not started'}</h2>`);
+ const can=mt&&c&&c.status==='BIDDING'&&a.status==='LIVE'&&c.team_id!==mt.id,nx=c?(c.current_bid==null?c.base_price:c.current_bid+c.increment):0;
+ $('act').innerHTML=mt&&c?`<button id="bb" ${can?'':'disabled'}>Bid ${nx} for ${esc(mt.name)}</button>`:'';
+ if($('bb'))$('bb').onclick=async()=>{try{await api('bid',{aid,player_id:c.id,amount:nx,request_id:Date.now()+'-'+Math.random()})}catch(x){toast(x.message)}};
+ $('feed').innerHTML=S.bids.map(b=>`<li><span>${esc(b.team)}</span><b>${b.amount}</b></li>`).join('')||'<li class="dim">Bids appear here</li>';
+ $('ev').innerHTML=S.events.map(e=>`<li><span>${e.action.replaceAll('_',' ').toLowerCase()}</span><span>${new Date(e.created_at).toLocaleTimeString()}</span></li>`).join('');
+ $('teams').innerHTML=S.teams.map(t=>`<div class="card ${mt&&t.id===mt.id?'mine':''}"><h3>${esc(t.name)}</h3><div class="dim">Captain: ${esc(t.captain||'not assigned')}</div><div class="num" style="font-size:28px">${t.purse}</div><div class="pb"><i style="width:${t.purse/a.settings.purse*100}%"></i></div><div class="dim">Squad ${t.squad} of ${a.settings.squad_max}: ${esc(S.players.filter(p=>p.team_id===t.id&&p.status==='SOLD').map(p=>p.name).join(', ')||'none yet')}</div></div>`).join('');
+ $('admin').classList.toggle('hide',!admin());$('setup').classList.toggle('hide',!setupOn);
+ if(setupOn){const k=JSON.stringify([a.name,a.settings,S.teams.map(t=>[t.id,t.name,t.captain_id]),S.players.map(p=>[p.id,p.name,p.role,p.category,p.stats]),users.map(u=>u.id)]);if(k!==skey){skey=k;$('setup').innerHTML=setupHTML()}}
+ const F=['All','Upcoming','Sold','Unsold','A','B','C'];$('chips').innerHTML=F.map(f=>`<button class="${f===flt?'on':''}" data-f="${f}">${f.length===1?'Category '+f:f}</button>`).join('');
+ $('chips').onclick=e=>{if(e.target.dataset.f){flt=e.target.dataset.f;render()}};
+ $('lobby').innerHTML=S.players.filter(p=>flt==='All'||(flt.length===1?p.category===flt:p.status===flt.toUpperCase())).map(p=>`<div class="card"><div class="row" style="justify-content:space-between"><b>${esc(p.name)}</b><span class="badge">${p.category}</span></div><div class="dim">${esc(p.role)}, base ${p.base_price}</div><div class="${p.status}">${p.status==='SOLD'?'Sold to '+esc(T[p.team_id].name)+' for '+p.sold_price:p.status.replace('_',' ').toLowerCase()}</div></div>`).join('')}
+setInterval(()=>{if(!S)return;const c=S.players.find(p=>p.status==='BIDDING'),tm=$('tm'),bar=$('bar');if(!tm)return;let ms=0;if(c)ms=S.auction.status==='PAUSED'?c.paused_ms:new Date(c.end_time)-(Date.now()+off);ms=Math.max(0,ms);
+ tm.textContent=c?(S.auction.status==='PAUSED'?'Paused, ':'')+(ms/1000).toFixed(1)+' s':'Time is up';if(bar){bar.style.width=Math.min(100,ms/(S.auction.settings.timer*1000)*100)+'%';bar.style.background=ms<5000?'var(--brick)':'var(--sage)'}},100);
+if(tok&&me)start();
+</script></body></html>

@@ -1,0 +1,12 @@
+create table if not exists users(id serial primary key,username text unique,pass text,role text check(role in('ADMIN','CAPTAIN','VIEWER','PLAYER')),team_id int);
+create table if not exists pricing_rules(id serial primary key,category text,min_score numeric,base_price int,increment int);
+create table if not exists auctions(id serial primary key,name text,status text default 'DRAFT',version int default 0,settings jsonb);
+create table if not exists teams(id serial primary key,name text,auction_id int references auctions,captain_id int,purse int);
+create table if not exists auction_players(id serial primary key,auction_id int references auctions,player_ref text,name text,role text,stats jsonb,score numeric,category text,base_price int,increment int,status text default 'UPCOMING',pos int,current_bid int,team_id int,end_time timestamptz,paused_ms int,seq int default 0,sold_price int);
+create table if not exists bids(id serial primary key,ap_id int references auction_players,team_id int,user_id int,amount int,seq int,request_id text,created_at timestamptz default now(),unique(ap_id,request_id));
+create table if not exists auction_events(id serial primary key,auction_id int,ap_id int,team_id int,user_id int,role text,action text,prev jsonb,next jsonb,reason text,created_at timestamptz default now());
+create index if not exists bids_ap_seq on bids(ap_id,seq);
+create index if not exists ev_auction on auction_events(auction_id,created_at);
+create index if not exists ap_auction on auction_players(auction_id,status,pos);
+alter table users add column if not exists display_name text;
+alter table users add column if not exists bat_role text;
