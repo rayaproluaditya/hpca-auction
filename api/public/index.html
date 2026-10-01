@@ -51,7 +51,7 @@ let S,tok=localStorage.tok,me=JSON.parse(localStorage.me||'null'),aid=+localStor
 const admin=()=>me&&me.role==='ADMIN',toast=m=>{const t=$('toast');t.textContent=m;t.style.display='block';setTimeout(()=>t.style.display='none',2800)};
 
 const API_BASE_URL='https://hpca-auction.onrender.com';
-async function api(p,b,m){const r=await fetch(API_BASE_URL+'/api/'+p,{method:b?'POST':'GET',headers:{'Content-Type':'application/json',Authorization:'Bearer '+tok},body:b?JSON.stringify(b):undefined});const j=await r.json().catch(()=>({}));if(r.status===401&&p!=='login'&&p!=='register')return out();if(!r.ok)throw new Error(j.error||'Request failed');return j}
+async function api(p,b,m){const r=await fetch(API_BASE_URL+'/api/'+p,{method:b?'POST':'GET',headers:{'Content-Type':'application/json',...(tok?{Authorization:'Bearer '+tok}:{})},body:b?JSON.stringify(b):undefined});const j=await r.json().catch(()=>({}));if(r.status===401&&p!=='login'&&p!=='register')return out();if(!r.ok)throw new Error(j.error||'Request failed');return j}
 const out=()=>{localStorage.clear();location.reload()};
 $('tg').onclick=()=>{reg=!reg;$('rf').classList.toggle('hide',!reg);$('rf').style.display=reg?'grid':'none';$('lb').textContent=reg?'Create profile':'Sign in';$('tg').textContent=reg?'I already have a profile':'Create a profile'};
 $('login').onsubmit=async e=>{e.preventDefault();try{const j=await api(reg?'register':'login',{username:$('u').value,password:$('p').value,display_name:$('dn').value,bat_role:$('br').value});localStorage.tok=j.token;localStorage.me=JSON.stringify(j.user);location.reload()}catch(x){toast(x.message)}};
