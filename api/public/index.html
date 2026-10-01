@@ -44,13 +44,13 @@ nav{background:rgba(10,20,18,.7);border-right:1px solid var(--line);padding:16px
 <section class="card box hide" id="admin"><h3>Control room</h3><input id="reason" placeholder="Reason (saved in the audit log)" style="margin:8px 0"><div class="row" id="ab"></div></section>
 <div class="chips" id="chips"></div><div class="lobby" id="lobby"></div></div></main></div>
 <div id="toast"></div>
-<script src="/socket.io/socket.io.js"></script>
+<script src="https://hpca-auction.onrender.com/socket.io/socket.io.js"></script>
 <script>
 const $=id=>document.getElementById(id),esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 let S,tok=localStorage.tok,me=JSON.parse(localStorage.me||'null'),aid=+localStorage.aid||0,off=0,voice=false,flt='All',sock,reg=false,users=[],list=[],skey='';
 const admin=()=>me&&me.role==='ADMIN',toast=m=>{const t=$('toast');t.textContent=m;t.style.display='block';setTimeout(()=>t.style.display='none',2800)};
-const API_BASE_URL = 'https://YOUR-RENDER-URL.onrender.com';
 
+const API_BASE_URL='https://hpca-auction.onrender.com';
 async function api(p,b,m){const r=await fetch(API_BASE_URL+'/api/'+p,{method:b?'POST':'GET',headers:{'Content-Type':'application/json',Authorization:'Bearer '+tok},body:b?JSON.stringify(b):undefined});const j=await r.json().catch(()=>({}));if(r.status===401&&p!=='login'&&p!=='register')return out();if(!r.ok)throw new Error(j.error||'Request failed');return j}
 const out=()=>{localStorage.clear();location.reload()};
 $('tg').onclick=()=>{reg=!reg;$('rf').classList.toggle('hide',!reg);$('rf').style.display=reg?'grid':'none';$('lb').textContent=reg?'Create profile':'Sign in';$('tg').textContent=reg?'I already have a profile':'Create a profile'};
@@ -66,7 +66,7 @@ function start(){$('login').classList.add('hide');$('app').classList.remove('hid
  if(admin()){$('newa').classList.remove('hide');$('ab').innerHTML=[['start','Start auction'],['next','Next player'],['pause','Pause'],['resume','Resume'],['confirm','Confirm sale'],['reopen','Reopen'],['unsold','Mark unsold'],['skip','Skip'],['undo','Undo bid'],['end','End auction']].map(([a,l])=>`<button data-a="${a}">${l}</button>`).join('');
   $('ab').onclick=async e=>{const a=e.target.dataset.a;if(!a)return;if(a==='end'&&!confirm('End the auction?'))return;try{await api('admin/'+a,{aid,reason:$('reason').value||null});$('reason').value=''}catch(x){toast(x.message)}};
   $('setup').onclick=setupClick;$('setup').onchange=e=>{if(e.target.id==='pu'){const u=users.find(x=>x.id==e.target.value);if(u){$('pn').value=u.name;$('pr').value=u.bat_role||'Batter'}}}}
- sock=io({auth:{token:tok}});sock.on('connect',()=>{if(aid)sock.emit('join',aid)});sock.on('state',s=>{if(s.auction.id!==aid)return;S=s;off=s.server_ts-Date.now();render()});
+ sock=io('https://hpca-auction.onrender.com',{auth:{token:tok}});sock.on('connect',()=>{if(aid)sock.emit('join',aid)});sock.on('state',s=>{if(s.auction.id!==aid)return;S=s;off=s.server_ts-Date.now();render()});
  sock.on('list',loadList);sock.on('connect_error',out);sock.on('announce',a=>{if(voice)speechSynthesis.speak(new SpeechSynthesisUtterance(a.text))});loadList()}
 const st=s=>[['Matches',s.matches],['Runs',s.runs],['Average',s.avg],['Strike rate',s.sr],['Wickets',s.wickets],['Economy',s.econ]].map(([l,v])=>`<div><b>${v}</b><span>${l}</span></div>`).join('');
 const ROLES=['Batter','Bowler','All-rounder','Wicketkeeper'];
